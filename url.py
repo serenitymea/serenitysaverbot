@@ -13,5 +13,5 @@ class ContentTypeChecker:
                 info = ydl.extract_info(url, download=False)
                 ext = info.get('ext')
                 return "video" if ext in ['mp4', 'mkv', 'webm'] else "other"
-        except yt_dlp.utils.DownloadError:
+        except Exception:
             return "unknown"

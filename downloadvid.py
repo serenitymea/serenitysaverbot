@@ -1,7 +1,4 @@
-"""
-скачать видео
-
-"""
+"""скачать видео"""
 import os
 import asyncio
 import yt_dlp
@@ -9,7 +6,7 @@ from yt_dlp.utils import DownloadError, ExtractorError, UnsupportedError
 from aiogram import types
 
 class VideoDownloader:
-    """клас для закачки"""
+    """класс для закачки"""
     def __init__(self, url: str, message: types.Message):
         self.url = url
         self.message = message
@@ -19,14 +16,10 @@ class VideoDownloader:
         videoerror = None
         videofilename = None
 
-        download_dir = "downloads"
-        print(f"Пытаемся создать папку: {download_dir}")
-        os.makedirs(download_dir, exist_ok=True)
-        print(f"Папка {download_dir} успешно создана или уже существует.")
+        os.makedirs("downloads", exist_ok=True)
+        output = os.path.join("downloads", 'video.%(ext)s')
 
-        output = os.path.join(download_dir, 'video.%(ext)s')
-
-        ydl_opts = {
+        ydlo = {
             'outtmpl': output,
             'format': 'best',
             'quiet': True,
@@ -35,21 +28,17 @@ class VideoDownloader:
                 'preferedformat': 'mp4'
             }]
         }
+
         try:
-            print(f"Начинаем загрузку видео: {self.url}")
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            with yt_dlp.YoutubeDL(ydlo) as ydl:
                 info = ydl.extract_info(self.url, download=True)
                 filename = ydl.prepare_filename(info)
-                print(f"Полученное имя файла: {filename}")
                 ffilename = os.path.splitext(filename)[0] + '.mp4'
                 if os.path.exists(ffilename):
                     videofilename = ffilename
-                    print(f"Файл найден: {ffilename}")
-
-        except (DownloadError, ExtractorError, UnsupportedError) as e:
-            videoerror = f"Ошибка при загрузке видео: {e}"
-            print(videoerror)
+        except (DownloadError, ExtractorError, UnsupportedError):
+            videoerror = "ошибка при загр"
         except asyncio.TimeoutError:
-            videoerror = "Превышено время ожидания при загрузке видео."
-            print(videoerror)
+            videoerror = "превышено время ожидания при загр"
+
         return videofilename, videoerror
